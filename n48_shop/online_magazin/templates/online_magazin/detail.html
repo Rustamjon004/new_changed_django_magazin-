@@ -110,20 +110,20 @@
                             <h3>Add Comment</h3>
                         </div>
                     
-                    <form method="post">
+                    <form method="get" action="">
                         {% csrf_token %}
                         <div class="form-group mb-3">
                           <label for="formGroupExampleInput">Your name</label>
                           <input type="text" class="form-control"  placeholder="Your name">
                         </div>
                         <div class="form-group mb-3">
-                          <label for="formGroupExampleInput2">Your email</label>
-                          <input type="text" class="form-control" name="name" placeholder="Your email">
+                          <label for="formGroupExampleInput2">Your number</label>
+                          <input type="text" class="form-control" name="Phone" placeholder="your phone number">
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="formGroupExampleInput2">Your comment</label>
-                           <textarea name="text  " class="form-control" id="" cols="30" rows="10"></textarea>
+                            <label for="formGroupExampleInput2">Quanty</label>
+                           <textarea name="number  " class="form-control" id="" cols="30" rows="10"></textarea>
                           </div>
 
                           <div class="form-group mb-3">
