@@ -5,7 +5,7 @@ class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:  # Bu joyda bo'sh joy to'g'ri bo'lishi kerak
+    class Meta:
         abstract = True
 
 class Category(models.Model):
@@ -30,6 +30,7 @@ class Product(BaseModel):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     quantity = models.PositiveBigIntegerField(choices=RatingChoices.choices, default=RatingChoices.zero.value)
     discount = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def discounted_price(self):
@@ -50,30 +51,20 @@ class User(models.Model):
         return self.username
 
 class Comment(BaseModel):
-    full_name = models.CharField(max_length=50)
+    full_name = models.CharField(max_length=100, default='default name')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
 
     def __str__(self):
         return self.text
 
+    from django.db import models
+    from django.contrib.auth.models import User
+
 class Order(models.Model):
-    STATUS_CHOICES = [
-        ('waiting', 'Waiting'),
-        ('sending', 'Sending'),
-        ('fast delivered', 'Fast Delivered'),
-        ('be canceled', 'Be Canceled'),
-    ]
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='waiting')
-
-    def __str__(self):
-        return self.status
-
-
-class Order(BaseModel):
-    name = models.CharField(max_length=50)
+    status = models.CharField(max_length=20)
+    name = models.CharField(max_length=100, default='default name')
     phone = models.CharField(max_length=50)
     quanity = models.IntegerField(default=0)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders')

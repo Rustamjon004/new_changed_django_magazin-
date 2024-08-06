@@ -8,32 +8,62 @@ from . form import OrderForm , CommentForm
 from online_magazin.models import Product, Category, Comment
 from .form import OrderModelForm,ProductModelForm
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 
-def product_list(request, cat_id):
-    try:
-        category = Category.objects.get(id=cat_id)
-    except ObjectDoesNotExist:
-        return render(request, 'online_magazin/home.html', {'message': 'Category not found.'})
+def product_list(request, category_id: Optional[int] = None):
+    categories = Category.objects.all().order_by('id')
+    search = request.GET.get('q')
+    filter_type = request.GET.get('filter', '')
+    if category_id:
+        if filter_type == 'expensive':
+            products = Product.objects.filter(category=category_id).order_by('-price')
+        elif filter_type == 'cheap':
+            products = Product.objects.filter(category=category_id).order_by('price')
+        elif filter_type == 'rating':
+            products = Product.objects.filter(Q(category=category_id) & Q(rating__gte=4)).order_by('-rating')
 
-    if cat_id:
-        products = Product.objects.filter(category=cat_id)
+        products = Product.objects.filter(category=category_id)
+        else:
+            products = Product.objects.filter(category=category_id)
+
+        else:
+            products = Product.objects.all()
+        if filter_type == 'expensive':
+            products = Product.objects.all().order_by('-price')
+        elif filter_type == 'cheap':
+            products = Product.objects.all().order_by('price')
+        elif filter_type == 'rating':
+            products = Product.objects.filter(Q(rating__gte=4)).order_by('-rating')
+            print(products)
+
+        else:
+            products = Product.objects.all()
+
+        if search:
+            products = products.filter(Q(name__icontains=search) | Q(comments__name__icontains=search))
+
+        context = {
+        'products': products,
+        'categories': categories
+          }
+            return render (request, 'online_magazin.home.html',context)
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Product, Comment
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    query = request.GET.get('q')
+    if query:
+        comments = product.comments.filter(body__icontains=query)
     else:
-        products = Product.objects.all()
-    context = {
-       'categories': category,
-       'products': products
-        }
-    return render(request, 'online_magazin/home.html', context)
+        comments = product.comments.all()
 
-
-def product_detail(request, pk):
-    comments = Comment.objects.filter(product=pk)
-    product = Product.objects.get(id=pk)
-
-
-    return render(request, 'online_magazin/detail.html', {'product': product})
-
+    return render(request, 'deteil.html', {'product': product, 'comments': comments})
 
 def add_comment(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -115,7 +145,7 @@ def add_product(request ):
     context = {
         'form': form
     }
-    return render(request, 'online_magazin/add_product.html', context)
+    return render(request, 'online_magazin/templates/add_product.html', context)
 
 def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
