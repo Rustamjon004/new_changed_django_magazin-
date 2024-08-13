@@ -22,12 +22,12 @@ def product_list(request, category_id: Optional[int] = None):
         elif filter_type == 'rating':
             products = Product.objects.filter(Q(category=category_id) & Q(rating__gte=4)).order_by('-rating')
 
-        products = Product.objects.filter(category=category_id)
+            products = Product.objects.filter(category=category_id)
         else:
             products = Product.objects.filter(category=category_id)
 
-        else:
-            products = Product.objects.all()
+    else:
+             products = Product.objects.all()
         if filter_type == 'expensive':
             products = Product.objects.all().order_by('-price')
         elif filter_type == 'cheap':
@@ -46,7 +46,7 @@ def product_list(request, category_id: Optional[int] = None):
         'products': products,
         'categories': categories
           }
-            return render (request, 'online_magazin.home.html',context)
+        return render (request, 'online_magazin.home.html',context)
 
 
 
